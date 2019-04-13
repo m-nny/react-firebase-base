@@ -7,10 +7,14 @@
     "@types/node": "11.13.4",
     "@types/react": "16.8.13",
     "@types/react-dom": "16.8.4",
+    "firebase": "^5.9.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
-    "typescript": "3.4.3"
+    "recompose": "^0.30.0",
+    "typescript": "3.4.3",
+    "utility-types": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -26,5 +30,9 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@types/react-router-dom": "^4.3.2",
+    "@types/recompose": "^0.30.5"
+  }
 }
