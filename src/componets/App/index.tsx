@@ -9,6 +9,7 @@ import PasswordForgetPage from '../PasswordForget';
 import HomePage from '../Home';
 import AccountPage from '../Account';
 import AdminPage from '../Admin';
+import { provideAuthentication } from '../Session';
 
 const App: React.FC = () => (
 	<Router>
@@ -26,4 +27,4 @@ const App: React.FC = () => (
 	</Router>
 );
 
-export default App;
+export default provideAuthentication(App);

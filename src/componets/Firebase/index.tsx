@@ -1,11 +1,9 @@
-import React from 'react';
-import Firebase from './firebase';
 import { Subtract } from 'utility-types';
+import * as React from 'react';
+import Firebase from './firebase';
+import { FirebaseConsumer, FirebaseProvider } from './context';
 
-export type FirebaseContext = Firebase | null;
-const {Provider, Consumer} = React.createContext<FirebaseContext>(null);
-
-export type WithFirebase = { firebase: Firebase };
+export type WithFirebase = { readonly firebase: Firebase };
 
 export const withFirebase = <BaseProps extends WithFirebase>(
 	BaseComponent: React.ComponentType<BaseProps>
@@ -13,11 +11,13 @@ export const withFirebase = <BaseProps extends WithFirebase>(
 	{
 		const {...restProps} = props as any;
 		return (
-			<Consumer>
+			<FirebaseConsumer>
 				{firebase => <BaseComponent firebase={firebase} {...restProps}/>}
-			</Consumer>
+			</FirebaseConsumer>
 		);
 	}
 };
 
-export { Provider as FirebaseProvider, Consumer as FirebaseConsumer };
+export { FirebaseProvider, FirebaseConsumer };
+export default Firebase;
+

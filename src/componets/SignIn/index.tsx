@@ -1,7 +1,7 @@
 import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { SignUpLink } from '../SignUp';
-import { withFirebase, WithFirebase } from '../Firebase/context';
+import { withFirebase, WithFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 import { compose } from 'recompose';
 
