@@ -22,7 +22,7 @@ type State = {
 	error: Error | null,
 };
 
-const INITIAL_STATE = {
+const INITIAL_STATE: State = {
 	username: '',
 	email: '',
 	passwordOne: '',
@@ -31,7 +31,7 @@ const INITIAL_STATE = {
 };
 
 class SignUpFormBase extends React.Component<Props, State> {
-	readonly state: State = {...INITIAL_STATE};
+	readonly state = {...INITIAL_STATE};
 
 	onSubmit: React.FormEventHandler = (event) => {
 		const {email, passwordOne} = this.state;

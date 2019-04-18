@@ -1,14 +1,17 @@
 import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { compose } from 'recompose';
+
 import { SignUpLink } from '../SignUp';
 import { withFirebase, WithFirebase } from '../Firebase';
-import * as ROUTES from '../../constants/routes';
-import { compose } from 'recompose';
+import { PasswordForgetLink } from '../PasswordForget';
+import { ROUTES } from '../../constants';
 
 const SignInPage = () => (
 	<div>
 		<h1>SignIn</h1>
 		<SignInForm/>
+		<PasswordForgetLink/>
 		<SignUpLink/>
 	</div>
 );
@@ -21,7 +24,7 @@ type State = {
 	error: Error | null;
 }
 
-const INITIAL_STATE = {
+const INITIAL_STATE: State = {
 	email: '',
 	password: '',
 	error: null,

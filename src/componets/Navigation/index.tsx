@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import * as ROUTES from '../../constants/routes';
+
 import SignOutButton from '../SignOut';
-import { withAuthentication, WithAuthentication } from '../Session';
+import { WithAuthentication, withAuthentication } from '../Session/withAuthentication';
+import { ROUTES } from '../../constants';
 
 type Props = WithAuthentication;
 

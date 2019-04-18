@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Firebase from './firebase';
 
 export type FirebaseContext = Firebase | null;

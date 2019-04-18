@@ -1,5 +1,6 @@
 import { Subtract } from 'utility-types';
 import * as React from 'react';
+
 import Firebase from './firebase';
 import { FirebaseConsumer, FirebaseProvider } from './context';
 

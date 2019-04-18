@@ -1,6 +1,6 @@
 import React from 'react';
-import { withFirebase, WithFirebase } from '../Firebase';
 
+import { withFirebase, WithFirebase } from '../Firebase';
 
 type Prop = WithFirebase;
 
