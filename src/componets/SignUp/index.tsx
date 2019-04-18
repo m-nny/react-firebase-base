@@ -34,15 +34,20 @@ class SignUpFormBase extends React.Component<Props, State> {
 	readonly state = {...INITIAL_STATE};
 
 	onSubmit: React.FormEventHandler = (event) => {
-		const {email, passwordOne} = this.state;
+		const {username, email, passwordOne} = this.state;
 
 		this.props.firebase
 			.doCreateUserWithEmailAndPassword(email, passwordOne)
+			.then(authUser => {
+				return this.props.firebase
+					.user(authUser.user!.uid)
+					.set({username, email})
+			})
 			.then(() => {
 				this.setState({...INITIAL_STATE});
 				this.props.history.push(ROUTES.HOME);
 			})
-			.catch((error: Error) => {
+			.catch((error) => {
 				this.setState({error});
 			});
 
