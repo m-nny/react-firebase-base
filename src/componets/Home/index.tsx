@@ -1,6 +1,8 @@
 import React from 'react';
+import { compose } from 'recompose';
 
 import withAuthorization, { Condition } from '../Session/withAuthorization';
+import { withEmailVerification } from '../Session';
 
 const Home: React.FC = () => (
 	<div>
@@ -11,4 +13,7 @@ const Home: React.FC = () => (
 
 const condition: Condition = userInfo => !!userInfo;
 
-export default withAuthorization(condition)(Home);
+export default compose(
+	withEmailVerification,
+	withAuthorization(condition),
+)(Home);

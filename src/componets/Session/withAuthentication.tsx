@@ -2,9 +2,9 @@ import { Unsubscribe } from 'firebase';
 import * as React from 'react';
 import { Subtract } from 'utility-types';
 
-import { Consumer, Provider } from './context';
 import { withFirebase, WithFirebase } from '../Firebase';
 import UserInfo from '../../models/UserInfo';
+import { UserInfoConsumer, UserInfoProvider } from '.';
 
 export type WithAuthentication = { readonly userInfo: UserInfo | null };
 
@@ -38,9 +38,9 @@ export const provideAuthentication = (BaseComponent: React.ComponentType) => {
 		render() {
 			const {...restProps} = this.props as any;
 			return (
-				<Provider value={this.state.userInfo}>
+				<UserInfoProvider value={this.state.userInfo}>
 					<BaseComponent {...restProps}/>
-				</Provider>
+				</UserInfoProvider>
 			);
 		}
 	}
@@ -54,9 +54,9 @@ export const withAuthentication = <BaseProps extends WithAuthentication>(
 	{
 		const {...restProps} = props as any;
 		return (
-			<Consumer>
+			<UserInfoConsumer>
 				{userInfo => <BaseComponent userInfo={userInfo} {...restProps}/>}
-			</Consumer>
+			</UserInfoConsumer>
 		);
 	}
 };

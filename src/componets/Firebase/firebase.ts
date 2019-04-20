@@ -1,6 +1,7 @@
 import * as firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
+
 import UserInfo from '../../models/UserInfo';
 
 const config = {
@@ -55,6 +56,11 @@ class Firebase {
 
 	doPasswordUpdate = (password: string) => this.auth.currentUser!.updatePassword(password);
 
+	doSendEmailVerification = () =>
+		this.auth.currentUser!.sendEmailVerification({
+			url: process.env.REACT_APP_CONFIRMATION_EMAIL_REDIRECT || ''
+		});
+
 	// *** Merge Auth and DB User API *** //
 	onUserInfoListener = (next: (userInfo: UserInfo) => void, fallback: () => void) =>
 		this.auth.onAuthStateChanged(authUser => {
@@ -73,6 +79,8 @@ class Firebase {
 						const userInfo: UserInfo = {
 							uid: authUser.uid,
 							email: authUser.email,
+							emailVerified: authUser.emailVerified,
+							providerData: authUser.providerData,
 							...dbUser,
 						};
 						next(userInfo);
@@ -81,7 +89,6 @@ class Firebase {
 				fallback();
 			}
 		});
-
 
 	// *** User API ***
 	user = (uid: string) => this.db.ref(`users/${uid}`);

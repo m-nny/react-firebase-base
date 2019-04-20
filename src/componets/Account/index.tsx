@@ -1,9 +1,10 @@
 import React from 'react';
+import { compose } from 'recompose';
 
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../PasswordChange';
 import withAuthorization, { Condition } from '../Session/withAuthorization';
-import { Consumer as UserInfoConsumer } from '../Session/context';
+import { UserInfoConsumer, withEmailVerification } from '../Session';
 import UserInfo from '../../models/UserInfo';
 import { WithFirebase, withFirebase } from '../Firebase';
 
@@ -217,4 +218,7 @@ const LoginManagement = withFirebase(LoginManagementBase);
 
 const condition: Condition = authUser => !!authUser;
 
-export default withAuthorization(condition)(Account);
+export default compose(
+	withEmailVerification,
+	withAuthorization(condition)
+)(Account);

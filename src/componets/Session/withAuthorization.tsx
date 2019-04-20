@@ -4,9 +4,9 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { compose } from 'recompose';
 
 import { withFirebase, WithFirebase } from '../Firebase';
-import { Consumer } from './context';
 import ROUTES from '../../constants/routes';
 import UserInfo from '../../models/UserInfo';
+import { UserInfoConsumer } from '.';
 
 type Props = WithFirebase & RouteComponentProps;
 export type Condition = (userInfo: UserInfo | null) => boolean;
@@ -32,9 +32,9 @@ const withAuthorization = (condition: Condition) => (Component: React.ComponentT
 
 		render() {
 			return (
-				<Consumer>
+				<UserInfoConsumer>
 					{userInfo => condition(userInfo) ? <Component {...this.props}/> : null}
-				</Consumer>
+				</UserInfoConsumer>
 			);
 		}
 	}

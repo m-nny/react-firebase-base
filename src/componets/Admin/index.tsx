@@ -1,8 +1,10 @@
 import React from 'react';
+import { compose } from 'recompose';
+
 import { withFirebase, WithFirebase } from '../Firebase';
 import withAuthorization, { Condition } from '../Session/withAuthorization';
 import ROLES from '../../constants/roles';
-import { compose } from 'recompose';
+import { withEmailVerification } from '../Session';
 
 type Props = WithFirebase;
 type State = { loading: boolean, users: any[] }
@@ -69,6 +71,7 @@ const UserList: React.FC<{ users: any[] }> = ({users}) => (
 const condition: Condition = (userInfo => userInfo != null && (!!userInfo.roles[ROLES.ADMIN]));
 
 export default compose<Props, {}>(
+	withEmailVerification,
 	withAuthorization(condition),
 	withFirebase,
 )(AdminPage);

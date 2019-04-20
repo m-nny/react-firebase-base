@@ -9,7 +9,7 @@ This project implements general firebase usage tutorial using TypeScript.
 - [x] [React Firebase Auth Persistence with Local Storage](https://www.robinwieruch.de/react-firebase-auth-persistence/)
 - [x] [Social Logins in Firebase React: Google, Facebook, Twitter](https://www.robinwieruch.de/react-firebase-social-login/)
 - [x] [How to link Social Logins with Firebase in React](https://www.robinwieruch.de/react-firebase-link-social-logins/)
-- [ ] [Email Verification with Firebase in React](https://www.robinwieruch.de/react-firebase-email-verification/)
+- [x] [Email Verification with Firebase in React](https://www.robinwieruch.de/react-firebase-email-verification/)
 - [ ] [How to use React Router with Firebase](https://www.robinwieruch.de/react-firebase-router/)
 - [ ] [How to use Firebase Realtime Database in React](https://www.robinwieruch.de/react-firebase-realtime-database/)
 - [ ] [How to deploy a React application to Firebase](https://www.robinwieruch.de/firebase-deploy-react-js/)
