@@ -5,6 +5,7 @@ const ROUTES = {
 	HOME: '/home',
 	ACCOUNT: '/account',
 	ADMIN: '/admin',
+	ADMIN_DETAILS: '/admin/:id',
 	PASSWORD_FORGET: '/pw-forget',
 };
 

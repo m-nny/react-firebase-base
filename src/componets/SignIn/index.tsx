@@ -102,12 +102,14 @@ class SignInGoogleBase extends React.Component<WithFirebaseAndHistory, ErrorStat
 		this.props.firebase
 			.doSignInWithGoogle()
 			.then((socialAuthUser) => {
-				const {user} = socialAuthUser;
-				const email: string = (socialAuthUser.additionalUserInfo!.profile! as any)['email'];
-				return user && this.props.firebase
-					.user(user.uid)
+				if (!socialAuthUser.user || !socialAuthUser.additionalUserInfo || !socialAuthUser.additionalUserInfo.profile)
+					return;
+				const email = (socialAuthUser.additionalUserInfo.profile as any)['email'];
+				const username = socialAuthUser.user.displayName;
+				return socialAuthUser.additionalUserInfo.isNewUser && this.props.firebase
+					.user(socialAuthUser.user.uid)
 					.set({
-						username: user.displayName,
+						username,
 						email,
 						roles: {},
 					});
@@ -143,12 +145,14 @@ class SignInGithubBase extends React.Component<WithFirebaseAndHistory, ErrorStat
 		this.props.firebase
 			.doSignInWithGithub()
 			.then((socialAuthUser) => {
-				const {user} = socialAuthUser;
-				const email: string = (socialAuthUser.additionalUserInfo!.profile! as any)['email'];
-				return user && this.props.firebase
-					.user(user.uid)
+				if (!socialAuthUser.user || !socialAuthUser.additionalUserInfo || !socialAuthUser.additionalUserInfo.profile)
+					return;
+				const email = (socialAuthUser.additionalUserInfo.profile as any)['email'];
+				const username = socialAuthUser.user.displayName;
+				return socialAuthUser.additionalUserInfo.isNewUser && this.props.firebase
+					.user(socialAuthUser.user.uid)
 					.set({
-						username: user.displayName,
+						username,
 						email,
 						roles: {},
 					});
