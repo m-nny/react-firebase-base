@@ -11,27 +11,32 @@ const SignInPage = () => (
 	<div>
 		<h1>SignIn</h1>
 		<SignInForm/>
+		<SignInGoogle/>
+		<SignInGithub/>
 		<PasswordForgetLink/>
 		<SignUpLink/>
 	</div>
 );
 
-type Props = WithFirebase & RouteComponentProps;
+type WithFirebaseAndHistory = WithFirebase & RouteComponentProps;
 
-type State = {
+type ErrorState = {
+	error: Error | null;
+};
+
+type FormState = {
 	email: string;
 	password: string;
-	error: Error | null;
-}
+} & ErrorState;
 
-const INITIAL_STATE: State = {
+const INITIAL_FORM_STATE: FormState = {
 	email: '',
 	password: '',
 	error: null,
 };
 
-class SignInFormBase extends React.Component<Props, State> {
-	readonly state: State = {...INITIAL_STATE};
+class SignInFormBase extends React.Component<WithFirebaseAndHistory, FormState> {
+	readonly state: FormState = {...INITIAL_FORM_STATE};
 
 	render() {
 		const {email, password, error} = this.state;
@@ -69,7 +74,7 @@ class SignInFormBase extends React.Component<Props, State> {
 		this.props.firebase
 			.doSignInWithEmailAndPassword(email, password)
 			.then(() => {
-				this.setState({...INITIAL_STATE});
+				this.setState({...INITIAL_FORM_STATE});
 				this.props.history.push(ROUTES.HOME);
 			})
 			.catch(error => {
@@ -83,7 +88,95 @@ class SignInFormBase extends React.Component<Props, State> {
 	};
 }
 
-const SignInForm = compose<Props, {}>(withRouter, withFirebase)(SignInFormBase);
+class SignInGoogleBase extends React.Component<WithFirebaseAndHistory, ErrorState> {
+	readonly state: ErrorState = {error: null};
+	onSubmit: React.FormEventHandler = (event) => {
+		this.props.firebase
+			.doSignInWithGoogle()
+			.then((socialAuthUser) => {
+				const {user} = socialAuthUser;
+				return user && this.props.firebase
+					.user(user.uid)
+					.set({
+						username: user.displayName,
+						email: user.email,
+						roles: {},
+					});
+			})
+			.then(() => {
+				this.setState({error: null});
+				this.props.history.push(ROUTES.HOME);
+			})
+			.catch(error => {
+				this.setState({error});
+			});
+		event.preventDefault();
+	};
+
+	render() {
+		const {error} = this.state;
+		return (
+			<form onSubmit={this.onSubmit}>
+				<button type='submit'>Sign in with Google</button>
+
+				{error && <p>{error.message}</p>}
+			</form>
+		);
+	}
+}
+
+class SignInGithubBase extends React.Component<WithFirebaseAndHistory, ErrorState> {
+	readonly state: ErrorState = {error: null};
+	onSubmit: React.FormEventHandler = (event) => {
+		this.props.firebase
+			.doSignInWithGithub()
+			.then((socialAuthUser) => {
+				const {user} = socialAuthUser;
+				return user && this.props.firebase
+					.user(user.uid)
+					.set({
+						username: user.displayName,
+						email: user.email,
+						roles: {},
+					});
+			})
+			.then(() => {
+				this.setState({error: null});
+				this.props.history.push(ROUTES.HOME);
+			})
+			.catch(error => {
+				this.setState({error});
+			});
+		event.preventDefault();
+	};
+
+	render() {
+		const {error} = this.state;
+		return (
+			<form onSubmit={this.onSubmit}>
+				<button type='submit'>Sign in with Github</button>
+
+				{error && <p>{error.message}</p>}
+			</form>
+		);
+	}
+}
+
+const SignInForm = compose<WithFirebaseAndHistory, {}>(
+	withRouter,
+	withFirebase
+)(SignInFormBase);
+
+const SignInGoogle = compose<WithFirebaseAndHistory, {}>(
+	withRouter,
+	withFirebase
+)(SignInGoogleBase);
+
+const SignInGithub = compose<WithFirebaseAndHistory, {}>(
+	withRouter,
+	withFirebase
+)(SignInGithubBase);
 
 export default SignInPage;
 
+export { SignInForm, SignInGoogle, SignInGithub };

@@ -1,4 +1,4 @@
-import * as app from 'firebase';
+import * as firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
 import UserInfo from '../../models/UserInfo';
@@ -15,14 +15,19 @@ const config = {
 console.log(config);
 
 class Firebase {
-	readonly auth: app.auth.Auth;
-	readonly db: app.database.Database;
+	readonly auth: firebase.auth.Auth;
+	readonly db: firebase.database.Database;
+	readonly googleProvider: firebase.auth.GoogleAuthProvider;
+	readonly githubProvider: firebase.auth.GithubAuthProvider;
 
 	constructor() {
-		app.initializeApp(config);
+		firebase.initializeApp(config);
 
-		this.auth = app.auth();
-		this.db = app.database();
+		this.auth = firebase.auth();
+		this.db = firebase.database();
+
+		this.googleProvider = new firebase.auth.GoogleAuthProvider();
+		this.githubProvider = new firebase.auth.GithubAuthProvider();
 	}
 
 	// *** Auth API ***
@@ -32,6 +37,12 @@ class Firebase {
 
 	doSignInWithEmailAndPassword = (email: string, password: string) =>
 		this.auth.signInWithEmailAndPassword(email, password);
+
+	doSignInWithGoogle = () =>
+		this.auth.signInWithPopup(this.googleProvider);
+
+	doSignInWithGithub = () =>
+		this.auth.signInWithPopup(this.githubProvider);
 
 	doSignOut = () => this.auth.signOut();
 
@@ -48,7 +59,7 @@ class Firebase {
 					.then(snapshot => {
 						if (!authUser)
 							return;
-						const dbUser = snapshot.val();
+						const dbUser = snapshot.val() || {};
 
 						if (!dbUser.roles) {
 							dbUser.roles = {};
