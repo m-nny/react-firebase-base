@@ -13,13 +13,21 @@ export const provideAuthentication = (BaseComponent: React.ComponentType) => {
 	type HocState = WithAuthentication;
 
 	class HOC extends React.Component<HocProps, HocState> {
-		readonly state: HocState = {userInfo: null};
+		readonly state: HocState = {
+			userInfo: JSON.parse(localStorage.getItem('userInfo') || 'null'),
+		};
 		private listener: Unsubscribe | undefined;
 
 		componentDidMount(): void {
 			this.listener = this.props.firebase.onUserInfoListener(
-				(userInfo) => this.setState({userInfo: userInfo}),
-				() => this.setState({userInfo: null})
+				(userInfo) => {
+					localStorage.setItem('userInfo', JSON.stringify(userInfo));
+					this.setState({userInfo: userInfo});
+				},
+				() => {
+					localStorage.removeItem('userInfo');
+					this.setState({userInfo: null});
+				}
 			);
 		}
 
