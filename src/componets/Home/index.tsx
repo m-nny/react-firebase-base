@@ -9,6 +9,6 @@ const Home: React.FC = () => (
 	</div>
 );
 
-const condition: Condition = authUser => !!authUser;
+const condition: Condition = userInfo => !!userInfo;
 
 export default withAuthorization(condition)(Home);

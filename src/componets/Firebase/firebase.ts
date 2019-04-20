@@ -1,6 +1,7 @@
 import * as app from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
+import UserInfo from '../../models/UserInfo';
 
 const config = {
 	apiKey: process.env.REACT_APP_API_KEY,
@@ -37,6 +38,34 @@ class Firebase {
 	doPasswordReset = (email: string) => this.auth.sendPasswordResetEmail(email);
 
 	doPasswordUpdate = (password: string) => this.auth.currentUser!.updatePassword(password);
+
+	// *** Merge Auth and DB User API *** //
+	onUserInfoListener = (next: (userInfo: UserInfo) => void, fallback: () => void) =>
+		this.auth.onAuthStateChanged(authUser => {
+			if (authUser) {
+				this.user(authUser.uid)
+					.once('value')
+					.then(snapshot => {
+						if (!authUser)
+							return;
+						const dbUser = snapshot.val();
+
+						if (!dbUser.roles) {
+							dbUser.roles = {};
+						}
+
+						const userInfo: UserInfo = {
+							uid: authUser.uid,
+							email: authUser.email,
+							...dbUser,
+						};
+						next(userInfo);
+					});
+			} else {
+				fallback();
+			}
+		});
+
 
 	// *** User API ***
 	user = (uid: string) => this.db.ref(`users/${uid}`);

@@ -1,5 +1,8 @@
 import React from 'react';
 import { withFirebase, WithFirebase } from '../Firebase';
+import withAuthorization, { Condition } from '../Session/withAuthorization';
+import ROLES from '../../constants/roles';
+import { compose } from 'recompose';
 
 type Props = WithFirebase;
 type State = { loading: boolean, users: any[] }
@@ -14,6 +17,9 @@ class AdminPage extends React.Component<Props, State> {
 		return (
 			<div>
 				<h1>Admin</h1>
+				<p>
+					The Admin Page is accessible by every signed in admin user.
+				</p>
 				{loading && <div>Loading ...</div>}
 				<UserList users={users}/>
 			</div>
@@ -60,4 +66,9 @@ const UserList: React.FC<{ users: any[] }> = ({users}) => (
 	</ul>
 );
 
-export default withFirebase(AdminPage);
+const condition: Condition = (userInfo => userInfo != null && (!!userInfo.roles[ROLES.ADMIN]));
+
+export default compose<Props, {}>(
+	withAuthorization(condition),
+	withFirebase,
+)(AdminPage);

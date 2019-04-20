@@ -3,18 +3,18 @@ import React from 'react';
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../PasswordChange';
 import withAuthorization, { Condition } from '../Session/withAuthorization';
-import { Consumer as AuthUserConsumer } from '../Session/context';
+import { Consumer as UserInfoConsumer } from '../Session/context';
 
 const Account: React.FC = () => (
-	<AuthUserConsumer>
-		{authUser => (
+	<UserInfoConsumer>
+		{userInfo => (
 			<div>
-				<h1>Account: {authUser!.email} </h1>
+				<h1>Account: {userInfo!.email} </h1>
 				<PasswordForgetForm/>
 				<PasswordChangeForm/>
 			</div>
 		)}
-	</AuthUserConsumer>
+	</UserInfoConsumer>
 );
 
 const condition: Condition = authUser => !!authUser;

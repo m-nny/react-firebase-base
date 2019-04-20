@@ -1,6 +1,6 @@
 import React from 'react';
-import { User } from 'firebase';
+import UserInfo from '../../models/UserInfo';
 
-export type SessionContext = User | null;
+export type SessionContext = UserInfo | null;
 export const {Provider, Consumer} = React.createContext<SessionContext>(null);
 

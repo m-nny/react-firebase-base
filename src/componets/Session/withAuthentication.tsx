@@ -1,26 +1,26 @@
-import { Unsubscribe, User } from 'firebase';
+import { Unsubscribe } from 'firebase';
 import * as React from 'react';
 import { Subtract } from 'utility-types';
 
 import { Consumer, Provider } from './context';
 import { withFirebase, WithFirebase } from '../Firebase';
+import UserInfo from '../../models/UserInfo';
 
-export type WithAuthentication = { readonly authUser: User | null };
+export type WithAuthentication = { readonly userInfo: UserInfo | null };
 
 export const provideAuthentication = (BaseComponent: React.ComponentType) => {
 	type HocProps = WithFirebase;
 	type HocState = WithAuthentication;
 
 	class HOC extends React.Component<HocProps, HocState> {
-		readonly state: HocState = {authUser: null};
+		readonly state: HocState = {userInfo: null};
 		private listener: Unsubscribe | undefined;
 
 		componentDidMount(): void {
-			this.listener = this.props.firebase.auth.onAuthStateChanged((authUser) => {
-				authUser
-					? this.setState({authUser})
-					: this.setState({authUser: null});
-			})
+			this.listener = this.props.firebase.onUserInfoListener(
+				(userInfo) => this.setState({userInfo: userInfo}),
+				() => this.setState({userInfo: null})
+			);
 		}
 
 		componentWillUnmount(): void {
@@ -30,7 +30,7 @@ export const provideAuthentication = (BaseComponent: React.ComponentType) => {
 		render() {
 			const {...restProps} = this.props as any;
 			return (
-				<Provider value={this.state.authUser}>
+				<Provider value={this.state.userInfo}>
 					<BaseComponent {...restProps}/>
 				</Provider>
 			);
@@ -47,7 +47,7 @@ export const withAuthentication = <BaseProps extends WithAuthentication>(
 		const {...restProps} = props as any;
 		return (
 			<Consumer>
-				{authUser => <BaseComponent authUser={authUser} {...restProps}/>}
+				{userInfo => <BaseComponent userInfo={userInfo} {...restProps}/>}
 			</Consumer>
 		);
 	}

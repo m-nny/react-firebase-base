@@ -10,7 +10,7 @@ import HomePage from '../Home';
 import AccountPage from '../Account';
 import AdminPage from '../Admin';
 import { provideAuthentication } from '../Session';
-import { ROUTES } from '../../constants';
+import ROUTES from '../../constants/routes';
 
 const App: React.FC = () => (
 	<Router>

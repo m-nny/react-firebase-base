@@ -2,8 +2,9 @@ import React from 'react';
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import * as ROUTES from '../../constants/routes';
 import { withFirebase, WithFirebase } from '../Firebase';
+import ROUTES from '../../constants/routes';
+import ROLES, { IRoles } from '../../constants/roles';
 
 const SignUpPage = () => (
 	<div>
@@ -19,6 +20,7 @@ type State = {
 	email: string,
 	passwordOne: string,
 	passwordTwo: string,
+	isAdmin: boolean,
 	error: Error | null,
 };
 
@@ -27,6 +29,7 @@ const INITIAL_STATE: State = {
 	email: '',
 	passwordOne: '',
 	passwordTwo: '',
+	isAdmin: false,
 	error: null,
 };
 
@@ -34,14 +37,18 @@ class SignUpFormBase extends React.Component<Props, State> {
 	readonly state = {...INITIAL_STATE};
 
 	onSubmit: React.FormEventHandler = (event) => {
-		const {username, email, passwordOne} = this.state;
+		const {username, email, passwordOne, isAdmin} = this.state;
+		const roles: IRoles = {};
+		if (isAdmin) {
+			roles[ROLES.ADMIN] = ROLES.ADMIN;
+		}
 
 		this.props.firebase
 			.doCreateUserWithEmailAndPassword(email, passwordOne)
 			.then(authUser => {
 				return this.props.firebase
 					.user(authUser.user!.uid)
-					.set({username, email})
+					.set({username, email, roles})
 			})
 			.then(() => {
 				this.setState({...INITIAL_STATE});
@@ -58,8 +65,12 @@ class SignUpFormBase extends React.Component<Props, State> {
 		this.setState({[name]: value} as any);
 	};
 
+	onChangeCheckbox: React.ChangeEventHandler<HTMLInputElement> = ({target: {name, checked}}) => {
+		this.setState({[name]: checked} as any);
+	};
+
 	render() {
-		const {username, email, passwordOne, passwordTwo, error} = this.state;
+		const {username, email, passwordOne, passwordTwo, isAdmin, error} = this.state;
 
 		const isInvalid = passwordOne != passwordTwo || passwordOne == '' || username == '' || email == '';
 
@@ -93,6 +104,15 @@ class SignUpFormBase extends React.Component<Props, State> {
 					type="password"
 					placeholder="Confirm Password"
 				/>
+				<label>
+					Admin:
+					<input
+						name="isAdmin"
+						type="checkbox"
+						checked={isAdmin}
+						onChange={this.onChangeCheckbox}
+					/>
+				</label>
 
 				<button type="submit" disabled={isInvalid}>Sign Up</button>
 
