@@ -18,6 +18,14 @@ const SignInPage = () => (
 	</div>
 );
 
+const ERROR_CODE_ACCOUNT_EXISTS = 'auth/account-exists-with-different-credential';
+const ERROR_MSG_ACCOUNT_EXISTS = `
+  An account with an E-Mail address to
+  this social account already exists. Try to login from
+  this account instead and associate your social accounts on
+  your personal account page.
+`;
+
 type WithFirebaseAndHistory = WithFirebase & RouteComponentProps;
 
 type ErrorState = {
@@ -95,11 +103,12 @@ class SignInGoogleBase extends React.Component<WithFirebaseAndHistory, ErrorStat
 			.doSignInWithGoogle()
 			.then((socialAuthUser) => {
 				const {user} = socialAuthUser;
+				const email: string = (socialAuthUser.additionalUserInfo!.profile! as any)['email'];
 				return user && this.props.firebase
 					.user(user.uid)
 					.set({
 						username: user.displayName,
-						email: user.email,
+						email,
 						roles: {},
 					});
 			})
@@ -107,7 +116,10 @@ class SignInGoogleBase extends React.Component<WithFirebaseAndHistory, ErrorStat
 				this.setState({error: null});
 				this.props.history.push(ROUTES.HOME);
 			})
-			.catch(error => {
+			.catch((error) => {
+				if (error.code == ERROR_CODE_ACCOUNT_EXISTS) {
+					error.message = ERROR_MSG_ACCOUNT_EXISTS;
+				}
 				this.setState({error});
 			});
 		event.preventDefault();
@@ -132,11 +144,12 @@ class SignInGithubBase extends React.Component<WithFirebaseAndHistory, ErrorStat
 			.doSignInWithGithub()
 			.then((socialAuthUser) => {
 				const {user} = socialAuthUser;
+				const email: string = (socialAuthUser.additionalUserInfo!.profile! as any)['email'];
 				return user && this.props.firebase
 					.user(user.uid)
 					.set({
 						username: user.displayName,
-						email: user.email,
+						email,
 						roles: {},
 					});
 			})
@@ -145,6 +158,9 @@ class SignInGithubBase extends React.Component<WithFirebaseAndHistory, ErrorStat
 				this.props.history.push(ROUTES.HOME);
 			})
 			.catch(error => {
+				if (error.code == ERROR_CODE_ACCOUNT_EXISTS) {
+					error.message = ERROR_MSG_ACCOUNT_EXISTS;
+				}
 				this.setState({error});
 			});
 		event.preventDefault();

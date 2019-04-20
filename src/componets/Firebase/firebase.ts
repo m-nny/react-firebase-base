@@ -19,6 +19,9 @@ class Firebase {
 	readonly db: firebase.database.Database;
 	readonly googleProvider: firebase.auth.GoogleAuthProvider;
 	readonly githubProvider: firebase.auth.GithubAuthProvider;
+	readonly emailProvider = firebase.auth.EmailAuthProvider;
+
+	[provider: string]: firebase.auth.AuthProvider | any;
 
 	constructor() {
 		firebase.initializeApp(config);
@@ -28,6 +31,8 @@ class Firebase {
 
 		this.googleProvider = new firebase.auth.GoogleAuthProvider();
 		this.githubProvider = new firebase.auth.GithubAuthProvider();
+		this.googleProvider.addScope('email');
+		this.githubProvider.addScope('user:email');
 	}
 
 	// *** Auth API ***
