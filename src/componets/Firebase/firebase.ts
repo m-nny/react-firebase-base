@@ -20,6 +20,7 @@ class Firebase {
 	readonly db: firebase.database.Database;
 	readonly googleProvider: firebase.auth.GoogleAuthProvider;
 	readonly githubProvider: firebase.auth.GithubAuthProvider;
+	readonly serverValue = firebase.database.ServerValue;
 	readonly emailProvider = firebase.auth.EmailAuthProvider;
 
 	[provider: string]: firebase.auth.AuthProvider | any;
