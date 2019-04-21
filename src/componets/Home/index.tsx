@@ -6,6 +6,7 @@ import { withAuthentication, withEmailVerification } from '../Session';
 import { WithFirebase, withFirebase } from '../Firebase';
 import Message from '../../models/Message';
 import { WithAuthentication } from '../Session/withAuthentication';
+import UserInfo from '../../models/UserInfo';
 
 const Home: React.FC = () => (
 	<div>
@@ -17,23 +18,31 @@ const Home: React.FC = () => (
 );
 
 type MessagesProps = WithFirebase & WithAuthentication;
-type MessagesState = { loading: boolean, messages: Message[] | null, text: string };
+type MessagesState = { loading: boolean, messages: Message[] | null, text: string, limit: number };
 type RemoveMessageHandler = (message_uid: string) => void;
 type EditMessageHandler = (message: Message, text: string) => void;
 
 class MessagesBase extends React.Component<MessagesProps, MessagesState> {
-	readonly state: MessagesState = {loading: false, messages: [], text: ''};
+	readonly state: MessagesState = {loading: false, messages: [], text: '', limit: 5};
 
 	render() {
 		const {text, messages, loading} = this.state;
+		const {userInfo} = this.props;
 		return (
 			<div>
+				{!loading&& messages && (
+					<button type="button" onClick={this.onNextPage}>
+						More
+					</button>
+				)}
+
 				{loading && <div>Loading ...</div>}
 				{messages ? (
 					<MessageList
 						messages={messages}
 						onRemoveMessage={this.onRemoveMessage}
 						onEditMessage={this.onEditMessage}
+						userInfo={userInfo!}
 					/>
 				) : (
 					<div>There are no messages...</div>
@@ -52,27 +61,41 @@ class MessagesBase extends React.Component<MessagesProps, MessagesState> {
 	}
 
 	componentDidMount(): void {
-		this.setState({loading: true});
-
-		this.props.firebase.messages().on('value', snapshot => {
-			const messageObject = snapshot!.val();
-
-			if (messageObject) {
-				const messageList: Message[] = Object.keys(messageObject).map(key => ({
-					...messageObject[key],
-					uid: key
-				}));
-
-				this.setState({messages: messageList, loading: false});
-			} else {
-				this.setState({messages: null, loading: false});
-			}
-		});
+		this.onListenForMessages();
 	}
 
 	componentWillUnmount(): void {
 		this.props.firebase.messages().off();
 	}
+
+	onListenForMessages(): void {
+		this.setState({loading: true});
+
+		this.props.firebase
+			.messages()
+			.orderByChild('createdAt')
+			.limitToLast(this.state.limit)
+			.on('value', snapshot => {
+				const messageObject = snapshot!.val();
+				if (messageObject) {
+					const messageList: Message[] = Object.keys(messageObject).map(key => ({
+						...messageObject[key],
+						uid: key
+					})).reverse();
+
+					this.setState({messages: messageList, loading: false});
+				} else {
+					this.setState({messages: null, loading: false});
+				}
+			});
+	}
+
+	onNextPage = () => {
+		this.setState(
+			state => ({limit: state.limit + 5}),
+			this.onListenForMessages
+		);
+	};
 
 	onChangeText: React.ChangeEventHandler<HTMLInputElement> = ({target: {name, value}}) => {
 		this.setState({[name]: value} as any);
@@ -104,11 +127,12 @@ class MessagesBase extends React.Component<MessagesProps, MessagesState> {
 	};
 }
 
-type MessageListProps = { messages: Message[], onRemoveMessage: RemoveMessageHandler, onEditMessage: EditMessageHandler };
-type MessageItemProps = { message: Message, onRemoveMessage: RemoveMessageHandler, onEditMessage: EditMessageHandler };
+type MessageCommonProps = { onRemoveMessage: RemoveMessageHandler, onEditMessage: EditMessageHandler, userInfo: UserInfo };
+type MessageListProps = { messages: Message[] } & MessageCommonProps;
+type MessageItemProps = { message: Message } & MessageCommonProps;
 type MessageItemState = { editMode: boolean, editText: string };
 
-const MessageList: React.FC<MessageListProps> = ({messages, onRemoveMessage, onEditMessage}) => (
+const MessageList: React.FC<MessageListProps> = ({messages, onRemoveMessage, onEditMessage, userInfo}) => (
 	<ul>
 		{messages.map(message => (
 			<MessageItem
@@ -116,6 +140,7 @@ const MessageList: React.FC<MessageListProps> = ({messages, onRemoveMessage, onE
 				message={message}
 				onRemoveMessage={onRemoveMessage}
 				onEditMessage={onEditMessage}
+				userInfo={userInfo}
 			/>
 		))}
 	</ul>
@@ -125,7 +150,7 @@ class MessageItem extends React.Component<MessageItemProps, MessageItemState> {
 	readonly state: MessageItemState = {editMode: false, editText: this.props.message.text};
 
 	render() {
-		const {message, onRemoveMessage} = this.props;
+		const {message, onRemoveMessage, userInfo} = this.props;
 		const {editMode, editText} = this.state;
 
 		return (
@@ -142,22 +167,27 @@ class MessageItem extends React.Component<MessageItemProps, MessageItemState> {
 						{message.editedAt && <span>(Edited)</span>}
 					</span>
 				)}
-				{editMode ? (
+				{userInfo.uid == message.userId && (
 					<span>
-						<button onClick={this.onSaveEditText}>Save</button>
-						<button onClick={this.onToggleEditMode}>Reset</button>
-					</span>
-				) : (
-					<button onClick={this.onToggleEditMode}>Edit</button>
-				)}
+						{editMode ? (
+							<span>
+								<button onClick={this.onSaveEditText}>Save</button>
+								<button onClick={this.onToggleEditMode}>Reset</button>
+							</span>
+						) : (
+							<button onClick={this.onToggleEditMode}>Edit</button>
+						)}
 
-				{!editMode && <button
-					type="button"
-					onClick={() => onRemoveMessage(message.uid)}
-				>
-					Delete
-				</button>
-				}
+						{!editMode && (
+							<button
+								type="button"
+								onClick={() => onRemoveMessage(message.uid)}
+							>
+								Delete
+							</button>
+						)}
+					</span>
+				)}
 			</li>
 		);
 	}
