@@ -91,9 +91,16 @@ class Firebase {
 		});
 
 	// *** User API ***
+
 	user = (uid: string) => this.db.ref(`users/${uid}`);
 
 	users = () => this.db.ref('users');
+
+	// *** Message API ***
+
+	message = (uid: string) => this.db.ref(`messages/${uid}`);
+
+	messages = () => this.db.ref(`messages`);
 }
 
 export default Firebase;
